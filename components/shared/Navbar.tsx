@@ -1,15 +1,25 @@
 import Link from "next/link";
 
+<<<<<<< HEAD
+=======
 // Lista de enlaces del menú (Navbar)
+>>>>>>> origin/main
 const navItems = [
   { href: "/", label: "Inicio" },
   { href: "/sell", label: "Publicar" },
   { href: "/my-listings", label: "Mis publicaciones" },
   { href: "/profile", label: "Perfil" },
+<<<<<<< HEAD
+  { href: "/about", label: "Nosotros" },
+];
+
+export default function Navbar() {
+=======
 ];
 
 export default function Navbar() {
   // Navbar global: aparece en todas las páginas porque se monta en app/layout.tsx
+>>>>>>> origin/main
   return (
     <header className="sticky top-0 z-20 border-b bg-white/80 backdrop-blur">
       <div className="mx-auto flex max-w-7xl items-center gap-4 px-4 py-3">
