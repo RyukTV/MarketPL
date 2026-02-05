@@ -8,12 +8,25 @@ import { categories, mockProducts, Product } from "../../lib/mockProducts";
 import { IconPlus, IconSearch } from "../shared/icons";
 import Link from "next/link";
 
+<<<<<<< HEAD
 
 export default function HomeClient() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
+=======
+export default function HomeClient() {
+  // Estado del producto seleccionado (para abrir/cerrar el modal de detalle)
+
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  // Categoría seleccionada para filtrar el listado
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Calcula la lista de productos a mostrar según categoría + texto de búsqueda
+>>>>>>> origin/main
   const filteredProducts = useMemo(() => {
     return mockProducts.filter((product) => {
       const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
@@ -33,8 +46,12 @@ export default function HomeClient() {
               <input
                 type="text"
                 placeholder="Busca productos o ubicaciones..."
+<<<<<<< HEAD
                 className="w-full rounded-lg border bg-white py-2 pl-10 pr-3 text-sm text-gray-900 placeholder:text-gray-400 caret-blue-600 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20
              dark:bg-gray-900 dark:text-gray-100 dark:placeholder:text-gray-400 dark:border-gray-700"
+=======
+                className="w-full rounded-lg border bg-white py-2 pl-10 pr-3 text-sm outline-none focus:border-blue-500"
+>>>>>>> origin/main
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -48,9 +65,12 @@ export default function HomeClient() {
             <IconPlus className="h-5 w-5" />
             <span>Publicar</span>
           </Link>
+<<<<<<< HEAD
 
 
           
+=======
+>>>>>>> origin/main
         </div>
         <div className="mb-6">
           <CategoryFilter
@@ -80,5 +100,8 @@ export default function HomeClient() {
       <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </div>
   );
+<<<<<<< HEAD
   
+=======
+>>>>>>> origin/main
 }
