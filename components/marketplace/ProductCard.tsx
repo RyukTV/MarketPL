@@ -1,7 +1,4 @@
-<<<<<<< HEAD
 /* eslint-disable @next/next/no-img-element */
-=======
->>>>>>> origin/main
 import { Product } from "../../lib/mockProducts";
 import { IconMapPin } from "../shared/icons";
 
