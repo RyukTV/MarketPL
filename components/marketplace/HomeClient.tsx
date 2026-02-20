@@ -8,16 +8,12 @@ import { categories, mockProducts, Product } from "../../lib/mockProducts";
 import { IconPlus, IconSearch } from "../shared/icons";
 import Link from "next/link";
 
+
 export default function HomeClient() {
-  // Estado del producto seleccionado (para abrir/cerrar el modal de detalle)
-
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-
-  // Categoría seleccionada para filtrar el listado
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Calcula la lista de productos a mostrar según categoría + texto de búsqueda
   const filteredProducts = useMemo(() => {
     return mockProducts.filter((product) => {
       const matchesCategory = selectedCategory === "All" || product.category === selectedCategory;
@@ -52,6 +48,9 @@ export default function HomeClient() {
             <IconPlus className="h-5 w-5" />
             <span>Publicar</span>
           </Link>
+
+
+          
         </div>
         <div className="mb-6">
           <CategoryFilter
@@ -81,4 +80,5 @@ export default function HomeClient() {
       <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </div>
   );
+  
 }
