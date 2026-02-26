@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase/client";
 import type { Session } from "@supabase/supabase-js";
+import Image from "next/image";
 
 const navItems = [
   { href: "/", label: "Inicio" },
@@ -24,41 +25,80 @@ export default function Navbar() {
   const router = useRouter();
   const [email, setEmail] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
 
- useEffect(() => {
-  let mounted = true;
+  useEffect(() => {
+    let mounted = true;
 
-  // 1) Cargar sesión actual
-  supabase.auth.getSession().then(({ data, error }) => {
-    if (!mounted) return;
-    if (error) {
-      setEmail(null);
-      setLoading(false);
-      return;
+    // Helper: cargar avatar desde profiles
+    async function loadAvatar(userId: string) {
+      const { data } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", userId)
+        .maybeSingle();
+
+      if (!mounted) return;
+      setAvatarUrl(data?.avatar_url ?? null);
     }
-    setEmail(data.session?.user?.email ?? null);
-    setLoading(false);
-  });
 
-  // 2) Escuchar cambios de sesión (login/logout)
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange(
-    (_event: string, session: Session | null) => {
+    // 1) Cargar sesión actual
+    supabase.auth.getSession().then(async ({ data, error }) => {
+      if (!mounted) return;
+
+      if (error) {
+        setEmail(null);
+        setAvatarUrl(null);
+        setLoading(false);
+        return;
+      }
+
+      const session = data.session;
       setEmail(session?.user?.email ?? null);
-    }
-  );
 
-  return () => {
-    mounted = false;
-    subscription.unsubscribe();
-  };
-}, []);
+      const uid = session?.user?.id;
+      if (uid) {
+        await loadAvatar(uid);
+      } else {
+        setAvatarUrl(null);
+      }
+
+      setLoading(false);
+    });
+
+    // 2) Escuchar cambios de sesión (login/logout)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(
+      async (_event: string, session: Session | null) => {
+        setEmail(session?.user?.email ?? null);
+
+        const uid = session?.user?.id;
+        if (!uid) {
+          setAvatarUrl(null);
+          return;
+        }
+
+        await loadAvatar(uid);
+      }
+    );
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   async function logout() {
     await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+
+  // Limpia estado local del navbar (para que cambie instantáneo)
+  setEmail(null);
+  setAvatarUrl(null);
+
+  // Redirige al inicio y fuerza refresco
+  router.push("/");
+  router.refresh();
   }
 
   return (
@@ -94,9 +134,31 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           {!loading && email ? (
             <>
+              {/* Avatar (click -> /profile) */}
+              <button
+                onClick={() => router.push("/profile")}
+                className="h-9 w-9 overflow-hidden rounded-full border dark:border-gray-700"
+                title="Ir a perfil"
+              >
+                {avatarUrl ? (
+                  <Image
+                    src={avatarUrl}
+                    alt="Avatar"
+                    width={36}
+                    height={36}
+                    className="h-9 w-9 object-cover"
+                  />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center bg-gray-100 text-xs font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-100">
+                    {email[0]?.toUpperCase()}
+                  </div>
+                )}
+              </button>
+
               <span className="hidden max-w-[220px] truncate text-xs text-gray-600 dark:text-gray-300 sm:block">
                 {email}
               </span>
+
               <button
                 onClick={logout}
                 className="rounded-lg border px-3 py-1.5 text-sm font-medium hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-900"

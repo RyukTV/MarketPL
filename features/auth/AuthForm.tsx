@@ -54,7 +54,7 @@ export default function AuthForm() {
       <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">
         {mode === "signup"
           ? "Regístrate para publicar en Nexamarket."
-          : "PLANTILLA: el login lo completará tu compañero."}
+          : ""}
       </p>
 
       <form onSubmit={onSubmit} className="mt-4 space-y-3">

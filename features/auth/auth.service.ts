@@ -8,11 +8,15 @@ import { supabase } from "@/lib/supabase/client";
  *   await supabase.auth.signInWithPassword({ email, password })
  */
 export async function loginWithPassword(email: string, password: string) {
-  // TODO: reemplazar por implementación real
-  // const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  // if (error) throw error;
-  // return data;
-  throw new Error("Login no implementado todavía (plantilla).");
+ const cleanEmail = email.trim().toLowerCase();
+
+ const { data, error } = await supabase.auth.signInWithPassword({
+   email: cleanEmail,
+   password,
+ });
+
+ if (error) throw error;
+ return data;
 }
 
 /**
