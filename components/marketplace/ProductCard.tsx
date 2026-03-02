@@ -27,13 +27,18 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         />
       </div>
       <div className="p-3">
-        <div className="mb-1 text-xl font-semibold">
-          ${product.price.toLocaleString()}
+        {/* ✅ más notorio */}
+        <div className="mb-1 text-xl font-extrabold text-gray-900">
+          DOP {product.price.toLocaleString()}
         </div>
-        <div className="mb-2 line-clamp-2 text-sm text-gray-700">
+
+        {/* ✅ más notorio */}
+        <div className="mb-2 line-clamp-2 text-sm font-semibold text-gray-900">
           {product.title}
         </div>
-        <div className="flex items-center text-xs text-gray-500">
+
+        {/* ✅ más notorio */}
+        <div className="flex items-center text-xs font-medium text-gray-700">
           <IconMapPin className="mr-1 h-3 w-3" />
           {product.location}
         </div>
