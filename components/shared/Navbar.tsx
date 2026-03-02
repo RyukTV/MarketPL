@@ -42,8 +42,13 @@ export default function Navbar() {
       setAvatarUrl(data?.avatar_url ?? null);
     }
 
-    // 1) Cargar sesión actual
-    supabase.auth.getSession().then(async ({ data, error }) => {
+    // ✅ Helper: sincronizar estado del navbar desde sesión/usuario
+    async function syncAuthState() {
+      if (!mounted) return;
+      setLoading(true);
+
+      // 1) Intentar sesión normal
+      const { data: sessionData, error } = await supabase.auth.getSession();
       if (!mounted) return;
 
       if (error) {
@@ -53,38 +58,63 @@ export default function Navbar() {
         return;
       }
 
-      const session = data.session;
-      setEmail(session?.user?.email ?? null);
+      const session = sessionData.session;
 
-      const uid = session?.user?.id;
-      if (uid) {
-        await loadAvatar(uid);
-      } else {
-        setAvatarUrl(null);
-      }
+      // 2) Si no hay sesión pero hay usuario, intenta recuperar
+      // (algunos navegadores tardan en rehidratar session)
+      if (!session) {
+        const { data: userData } = await supabase.auth.getUser();
+        if (!mounted) return;
 
-      setLoading(false);
-    });
-
-    // 2) Escuchar cambios de sesión (login/logout)
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(
-      async (_event: string, session: Session | null) => {
-        setEmail(session?.user?.email ?? null);
-
-        const uid = session?.user?.id;
-        if (!uid) {
+        const user = userData.user;
+        if (!user) {
+          setEmail(null);
           setAvatarUrl(null);
+          setLoading(false);
           return;
         }
 
-        await loadAvatar(uid);
+        setEmail(user.email ?? null);
+        await loadAvatar(user.id);
+        setLoading(false);
+        return;
       }
-    );
+
+      // 3) Caso normal: sesión presente
+      setEmail(session.user.email ?? null);
+      await loadAvatar(session.user.id);
+      setLoading(false);
+    }
+
+    // 1) Cargar al iniciar
+    syncAuthState();
+
+    // ✅ 2) Revalidar al volver a enfocar la pestaña (Opera/Brave a veces “duerme”)
+    const onFocus = () => {
+      syncAuthState();
+    };
+    window.addEventListener("focus", onFocus);
+
+    // 3) Escuchar cambios de sesión (login/logout)
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event: string, session: Session | null) => {
+      if (!mounted) return;
+
+      setEmail(session?.user?.email ?? null);
+
+      const uid = session?.user?.id;
+      if (!uid) {
+        setAvatarUrl(null);
+        return;
+      }
+
+      await loadAvatar(uid);
+    });
 
     return () => {
       mounted = false;
+      window.removeEventListener("focus", onFocus);
       subscription.unsubscribe();
     };
   }, []);
@@ -92,13 +122,13 @@ export default function Navbar() {
   async function logout() {
     await supabase.auth.signOut();
 
-  // Limpia estado local del navbar (para que cambie instantáneo)
-  setEmail(null);
-  setAvatarUrl(null);
+    // Limpia estado local del navbar (para que cambie instantáneo)
+    setEmail(null);
+    setAvatarUrl(null);
 
-  // Redirige al inicio y fuerza refresco
-  router.push("/");
-  router.refresh();
+    // Redirige al inicio y fuerza refresco
+    router.push("/");
+    router.refresh();
   }
 
   return (

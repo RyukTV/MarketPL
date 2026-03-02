@@ -1,5 +1,10 @@
 export type ListingStatus = "active" | "sold" | "hidden";
 
+export type ListingImage = {
+  path: string;
+  sort_order: number | null;
+};
+
 export type Listing = {
   id: string;
   seller_id: string;
@@ -17,4 +22,6 @@ export type Listing = {
 
   created_at: string;
   updated_at: string;
+
+  listing_images?: ListingImage[] | null;
 };
