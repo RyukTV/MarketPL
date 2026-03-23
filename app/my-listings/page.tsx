@@ -95,9 +95,9 @@ export default function MyListingsPage() {
   }, [router]);
 
   // Botones placeholder (NO implementan nada todavía)
-  function onEdit(id: string) {
-    alert(`Editar (pendiente) — id: ${id}`);
-  }
+function onEdit(id: string) {
+  router.push(`/edit/${id}`);
+}
 
   async function onDelete(uuidOrId: string) {
     const ok = confirm("¿Seguro que quieres eliminar esta publicación?");
