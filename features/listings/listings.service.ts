@@ -219,3 +219,83 @@ export async function getListingSellerContact(listingId: string) {
     avatarUrl: profile?.avatar_url ?? null,
   };
 }
+
+
+//Update
+export async function updateListing(params: {
+  id: string;
+  title: string;
+  description?: string;
+  price: number;
+  city?: string;
+  category_id?: number | null;
+}) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData.session?.user?.id;
+  if (!userId) throw new Error("Debes iniciar sesión.");
+
+  const { data, error } = await supabase
+    .from("listings")
+    .update({
+      title: params.title.trim(),
+      description: params.description?.trim() || null,
+      price: params.price,
+      city: params.city?.trim() || null,
+      category_id: params.category_id ?? null,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", params.id)
+    .select("*")
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+
+export async function setListingMainImage(params: {
+  listingId: string;
+  file: File;
+}) {
+  const { data: sessionData } = await supabase.auth.getSession();
+  const userId = sessionData.session?.user?.id;
+  if (!userId) throw new Error("Debes iniciar sesión.");
+
+  // 1) Subir el archivo al bucket (reusamos tu uploader)
+  const [path] = await uploadListingImages({
+    userId,
+    listingId: params.listingId,
+    files: [params.file],
+  });
+
+  // 2) Ver si ya existe imagen principal (sort_order = 0)
+  const { data: existing, error: readErr } = await supabase
+    .from("listing_images")
+    .select("id")
+    .eq("listing_id", params.listingId)
+    .eq("sort_order", 0)
+    .maybeSingle();
+
+  if (readErr) throw readErr;
+
+  // 3) Si existe: update. Si no: insert.
+  if (existing?.id) {
+    const { error } = await supabase
+      .from("listing_images")
+      .update({ path })
+      .eq("id", existing.id);
+
+    if (error) throw error;
+  } else {
+    const { error } = await supabase.from("listing_images").insert({
+      listing_id: params.listingId,
+      path,
+      sort_order: 0,
+    });
+
+    if (error) throw error;
+  }
+
+  // 4) Devolver URL pública para preview inmediato
+  return getListingImagePublicUrl(path);
+}

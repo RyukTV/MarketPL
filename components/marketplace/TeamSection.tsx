@@ -1,59 +1,45 @@
 import Image from "next/image";
 
 const team = [
-  {
-    name: "Endrik Feliz Lora",
-    role: "Organizador y desarrollo fullstack",
-    photo: "/team/placeholder.png",
-  },
-  {
-    name: "Nombre 2",
-    role: "Backend / Supabase",
-    photo: "/team/placeholder.png",
-  },
-  {
-    name: "Nombre 3",
-    role: "UI / Listado",
-    photo: "/team/placeholder.png",
-  },
-  {
-    name: "Nombre 4",
-    role: "Documentación",
-    photo: "/team/placeholder.png",
-  },
-  {
-    name: "Nombre 5",
-    role: "Documentación",
-    photo: "/team/placeholder.png",
-  },
+  { name: "Endrik Feliz Lora ", role: "A00119733", photo: "/team/Endrik.png" },
+  { name: "Luis Diego Sencion Rodríguez", role: "A00119141", photo: "/team/placeholder.png" },
+  { name: "Steven Fernando Nivar Cornielle", role: "A00121646", photo: "/team/placeholder.png" },
+  { name: "Sebastián Romero", role: "A00114835", photo: "/team/placeholder.png" },
+  { name: "Max Perez", role: "A00121626", photo: "/team/placeholder.png" },
+  { name: "Yordi David García Garabito", role: "A00104853", photo: "/team/placeholder.png" },
 ];
 
 export default function TeamSection() {
   return (
     <section className="mt-10">
-      <div className="mb-4">
-      </div>
+      <div className="mb-4" />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {/* ✅ Grid más balanceada */}
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {team.map((p) => (
           <div
             key={p.name}
             className="rounded-xl border bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900"
           >
-            <div className="flex items-center gap-3">
-              <div className="relative h-12 w-12 overflow-hidden rounded-full border dark:border-gray-700">
+            {/* ✅ Layout vertical */}
+            <div className="flex flex-col items-center text-center gap-3">
+              {/* ✅ Foto más grande */}
+              <div className="relative h-20 w-20 overflow-hidden rounded-full border dark:border-gray-700">
                 <Image
                   src={p.photo}
                   alt={p.name}
                   fill
-                  sizes="48px"
+                  sizes="80px"
                   className="object-cover"
                 />
               </div>
 
+              {/* ✅ Sin truncate */}
               <div className="min-w-0">
-                <p className="truncate font-medium">{p.name}</p>
-                <p className="truncate text-xs text-gray-600 dark:text-gray-300">
+                <p className="text-sm font-semibold leading-tight text-gray-900 dark:text-gray-100">
+                  {p.name}
+                </p>
+                <p className="mt-1 text-xs text-gray-600 dark:text-gray-300">
                   {p.role}
                 </p>
               </div>
